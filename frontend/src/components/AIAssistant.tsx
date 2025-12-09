@@ -36,12 +36,56 @@ export function AIAssistant({
         scrollToBottom();
     }, [messages]);
 
-    const handleSend = async () => {
-        if (!input.trim() || isLoading) return;
 
-        const userMessage = input.trim();
-        setInput('');
-        setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+
+    const [isRecording, setIsRecording] = useState(false);
+    const recognitionRef = useRef<any>(null);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
+            // @ts-ignore
+            const recognition = new window.webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'es-ES';
+
+            recognition.onresult = (event: any) => {
+                const transcript = event.results[0][0].transcript;
+                setInput(transcript);
+                handleSend(transcript); // Auto-send
+                setIsRecording(false);
+            };
+
+            recognition.onerror = (event: any) => {
+                console.error('Speech recognition error', event.error);
+                setIsRecording(false);
+            };
+
+            recognition.onend = () => {
+                setIsRecording(false);
+            };
+
+            recognitionRef.current = recognition;
+        }
+    }, []);
+
+    const toggleRecording = () => {
+        if (isRecording) {
+            recognitionRef.current?.stop();
+        } else {
+            recognitionRef.current?.start();
+            setIsRecording(true);
+        }
+    };
+
+    // Modified handleSend to accept optional text
+    const handleSend = async (textOverride?: string) => {
+        const messageText = textOverride || input;
+        if (!messageText.trim() || isLoading) return;
+
+        if (!textOverride) setInput('');
+
+        setMessages(prev => [...prev, { role: 'user', content: messageText }]);
         setIsLoading(true);
 
         try {
@@ -51,7 +95,7 @@ export function AIAssistant({
             }));
 
             // Send current frame if available
-            const response = await sendAssistantMessage(userMessage, history, currentFrame);
+            const response = await sendAssistantMessage(messageText, history, currentFrame);
 
             setMessages(prev => [...prev, { role: 'assistant', content: response.response }]);
 
@@ -149,17 +193,32 @@ export function AIAssistant({
                     {/* Input */}
                     <div className="p-3 border-t border-border">
                         <div className="flex gap-2">
+                            {/* Mic Button */}
+                            <button
+                                onClick={toggleRecording}
+                                disabled={isLoading}
+                                className={`px-3 py-2 rounded-lg transition-colors ${isRecording
+                                    ? 'bg-red-500 text-white animate-pulse'
+                                    : 'bg-secondary text-foreground hover:bg-secondary/80'
+                                    }`}
+                                title="Hablar con Argos"
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                </svg>
+                            </button>
+
                             <input
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder="Escribe tu mensaje..."
+                                placeholder={isRecording ? "Escuchando..." : "Escribe tu mensaje..."}
                                 className="flex-1 px-3 py-2 bg-secondary border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                                disabled={isLoading}
+                                disabled={isLoading || isRecording}
                             />
                             <button
-                                onClick={handleSend}
+                                onClick={() => handleSend()}
                                 disabled={isLoading || !input.trim()}
                                 className="px-3 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
