@@ -1,4 +1,4 @@
-# Dockerfile for VisionMind Frontend
+# Dockerfile for Argos Frontend
 # Next.js production build
 
 FROM node:20-alpine AS deps

@@ -1,5 +1,10 @@
-# VisionMind Docker Compose
-# Development and production configuration
+# Argos Docker Compose
+# Multi-backend detection platform - El gigante de los 100 ojos
+#
+# Usage:
+#   docker compose up                    # Core only (YOLO)
+#   docker compose --profile full up     # All backends
+#   docker compose --profile dlc up      # Core + DeepLabCut
 
 version: '3.8'
 
@@ -8,7 +13,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: visionmind-backend
+    container_name: argos-backend
     ports:
       - "8000:8000"
     environment:
@@ -22,13 +27,17 @@ services:
       - VM_ADMIN_PASS=${VM_ADMIN_PASS:-visionmind}
       - VM_CORS_ORIGINS=http://localhost:3000,http://frontend:3000
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      # Multi-backend settings
+      - VM_DLC_ENABLED=${VM_DLC_ENABLED:-false}
+      - VM_SLEAP_ENABLED=${VM_SLEAP_ENABLED:-false}
     volumes:
       - ./backend/data:/app/data
+      - ./models:/app/models # Shared models directory
       # For webcam access (uncomment on Linux)
       # - /dev/video0:/dev/video0
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -37,7 +46,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: visionmind-frontend
+    container_name: argos-frontend
     ports:
       - "3000:3000"
     environment:
@@ -47,5 +56,47 @@ services:
       - backend
     restart: unless-stopped
 
+  # Optional: DeepLabCut container for high-accuracy animal pose estimation
+  deeplabcut:
+    image: deeplabcut/deeplabcut:latest-core
+    container_name: argos-deeplabcut
+    profiles: [ "full", "dlc" ]
+    environment:
+      - DLC_MODEL=${DLC_MODEL:-superanimal_quadruped}
+    volumes:
+      - ./models/dlc:/app/models
+      - ./backend/data:/app/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import deeplabcut; print('ok')" ]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+
+  # Optional: PostgreSQL for analytics data persistence
+  database:
+    image: postgres:15-alpine
+    container_name: argos-db
+    profiles: [ "full", "db" ]
+    environment:
+      - POSTGRES_USER=${DB_USER:-visionmind}
+      - POSTGRES_PASSWORD=${DB_PASS:-visionmind_secret}
+      - POSTGRES_DB=${DB_NAME:-visionmind}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
 volumes:
   backend-data:
+  postgres-data:
+
+

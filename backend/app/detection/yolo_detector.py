@@ -1,6 +1,7 @@
 """
 YOLOv11 Detector wrapper.
 Maneja carga del modelo, inferencia y postprocesamiento de detecciones.
+Refactored to implement BaseDetector interface for multi-backend support.
 """
 import cv2
 import numpy as np
@@ -10,6 +11,15 @@ from typing import Any
 import time
 
 from app.config import DetectionConfig, COCO_CLASSES_ES, ModelSize, ModelType, PoseModelSize
+from .base_detector import (
+    BaseDetector,
+    BackendCapabilities,
+    BackendType,
+    TargetType,
+    Detection as BaseDetection,
+    DetectionResult as BaseDetectionResult,
+    Keypoint as BaseKeypoint,
+)
 
 
 # Conexiones del esqueleto COCO para pose estimation (17 keypoints)
@@ -32,77 +42,20 @@ KEYPOINT_NAMES = [
 ]
 
 
-@dataclass
-class Keypoint:
-    """Representa un keypoint de pose estimation"""
-    x: int
-    y: int
-    confidence: float
-    name: str = ""
-    
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "x": self.x,
-            "y": self.y,
-            "confidence": round(self.confidence, 3),
-            "name": self.name,
-        }
+# Legacy type aliases for backward compatibility
+# New code should use types from base_detector
+Keypoint = BaseKeypoint
+Detection = BaseDetection
+DetectionResult = BaseDetectionResult
 
 
-@dataclass
-class Detection:
-    """Representa una detección individual"""
-    class_id: int
-    class_name: str
-    class_name_es: str
-    confidence: float
-    bbox: tuple[int, int, int, int]  # x1, y1, x2, y2
-    keypoints: list[Keypoint] = field(default_factory=list)  # Para pose estimation
-    
-    def to_dict(self) -> dict[str, Any]:
-        result = {
-            "class_id": self.class_id,
-            "class_name": self.class_name,
-            "class_name_es": self.class_name_es,
-            "confidence": round(self.confidence, 3),
-            "bbox": list(self.bbox),
-        }
-        if self.keypoints:
-            result["keypoints"] = [kp.to_dict() for kp in self.keypoints]
-        return result
-
-
-@dataclass
-class DetectionResult:
-    """Resultado completo de una inferencia"""
-    detections: list[Detection]
-    inference_time_ms: float
-    frame_width: int
-    frame_height: int
-    timestamp: float = field(default_factory=time.time)
-    
-    def to_dict(self) -> dict[str, Any]:
-        # Contar objetos por clase
-        counts: dict[str, int] = {}
-        for det in self.detections:
-            key = det.class_name_es
-            counts[key] = counts.get(key, 0) + 1
-        
-        return {
-            "detections": [d.to_dict() for d in self.detections],
-            "counts": counts,
-            "total_objects": len(self.detections),
-            "inference_time_ms": round(self.inference_time_ms, 2),
-            "frame_size": {"width": self.frame_width, "height": self.frame_height},
-            "timestamp": self.timestamp,
-        }
-
-
-class YOLODetector:
+class YOLODetector(BaseDetector):
     """
     Wrapper para YOLOv11 de Ultralytics.
     Maneja carga de modelo, configuración y detección.
     Soporta tanto detección de objetos como estimación de pose.
+    
+    Implements BaseDetector interface for multi-backend pipeline support.
     """
     
     def __init__(self, config: DetectionConfig | None = None):
@@ -111,19 +64,46 @@ class YOLODetector:
         self.pose_model: YOLO | None = None
         self._model_loaded: str | None = None
         self._pose_model_loaded: str | None = None
+    
+    def get_capabilities(self) -> BackendCapabilities:
+        """Return YOLO backend capabilities"""
+        return BackendCapabilities(
+            backend_type=BackendType.YOLO,
+            supports_pose=True,
+            supports_tracking=True,
+            supports_3d=False,
+            supports_multi_animal=True,
+            max_fps=60,  # YOLO is very fast
+            supported_targets=[
+                TargetType.HUMAN,
+                TargetType.QUADRUPED,  # Dogs, cats, horses from COCO
+                TargetType.BIRD,
+            ],
+            requires_gpu=False,
+        )
+    
+    def is_loaded(self) -> bool:
+        """Check if a model is currently loaded"""
+        return self.model is not None
         
-    def load_model(self, model_size: ModelSize | None = None) -> None:
+    def load_model(self, model_name: str | ModelSize | None = None, **kwargs) -> None:
         """Carga el modelo YOLO de detección especificado"""
-        model_name = model_size.value if model_size else self.config.model_size.value
+        # Handle different input types
+        if model_name is None:
+            resolved_name = self.config.model_size.value
+        elif isinstance(model_name, ModelSize):
+            resolved_name = model_name.value
+        else:
+            resolved_name = model_name
         
         # No recargar si ya está cargado el mismo modelo
-        if self._model_loaded == model_name and self.model is not None:
+        if self._model_loaded == resolved_name and self.model is not None:
             return
             
-        print(f"🔄 Cargando modelo de detección {model_name}...")
-        self.model = YOLO(model_name)
-        self._model_loaded = model_name
-        print(f"✅ Modelo de detección {model_name} cargado correctamente")
+        print(f"🔄 Cargando modelo de detección {resolved_name}...")
+        self.model = YOLO(resolved_name)
+        self._model_loaded = resolved_name
+        print(f"✅ Modelo de detección {resolved_name} cargado correctamente")
     
     def load_pose_model(self, pose_model_size: PoseModelSize | None = None) -> None:
         """Carga el modelo YOLO de pose estimation"""
@@ -221,6 +201,7 @@ class YOLODetector:
             inference_time_ms=inference_time,
             frame_width=w,
             frame_height=h,
+            backend_type=BackendType.YOLO,
         )
     
     def detect_pose(self, frame: np.ndarray) -> DetectionResult:
@@ -299,6 +280,7 @@ class YOLODetector:
             inference_time_ms=inference_time,
             frame_width=w,
             frame_height=h,
+            backend_type=BackendType.YOLO,
         )
     
     def draw_detections(

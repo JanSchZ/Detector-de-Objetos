@@ -1,5 +1,5 @@
 """
-Database configuration and setup for VisionMind.
+Database configuration and setup for Argos.
 Uses SQLAlchemy async with SQLite for persistence.
 """
 import os
@@ -12,7 +12,7 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 # Database file path
-DB_PATH = Path(__file__).parent.parent / "data" / "visionmind.db"
+DB_PATH = Path(__file__).parent.parent / "data" / "argos.db"
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 # Database URL

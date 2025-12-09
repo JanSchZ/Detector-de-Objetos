@@ -58,7 +58,7 @@ export function TopBar({
                             <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                     </div>
-                    <span className="text-sm font-medium hidden sm:inline">VisionMind</span>
+                    <span className="text-sm font-medium hidden sm:inline">Argos</span>
                 </div>
 
                 {/* Camera Selector */}
@@ -113,8 +113,8 @@ export function TopBar({
                 {/* Connection Status */}
                 <div className={`status-badge mr-2 ${isConnected ? 'connected' : backendStatus === 'online' ? 'connecting' : 'disconnected'}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${backendStatus === 'checking' ? 'bg-muted-foreground animate-pulse' :
-                            isConnected ? 'bg-primary animate-pulse' :
-                                backendStatus === 'online' ? 'bg-yellow-500 animate-pulse' : 'bg-muted-foreground'
+                        isConnected ? 'bg-primary animate-pulse' :
+                            backendStatus === 'online' ? 'bg-yellow-500 animate-pulse' : 'bg-muted-foreground'
                         }`} />
                     <span className="hidden sm:inline">
                         {backendStatus === 'checking' ? 'Verificando' :

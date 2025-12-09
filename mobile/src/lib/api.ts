@@ -1,5 +1,5 @@
 /**
- * VisionMind Mobile - API Configuration
+ * Argos Mobile - API Configuration
  */
 
 // Default to localhost, update with actual server URL

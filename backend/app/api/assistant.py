@@ -25,7 +25,7 @@ import uuid
 router = APIRouter(prefix="/api/assistant", tags=["assistant"])
 
 # System prompt with full feature documentation
-SYSTEM_PROMPT = """Eres un asistente de IA integrado en "VisionMind", una aplicación de detección de objetos en tiempo real usando YOLOv11.
+SYSTEM_PROMPT = """Eres un asistente de IA integrado en "Argos", un sistema de detección de objetos multi-backend.
 
 ## Tus Capacidades Multimodales:
 - **Puedes VER la cámara**: Recibes frames de video cuando el usuario te habla. Úsalos para entender el contexto.

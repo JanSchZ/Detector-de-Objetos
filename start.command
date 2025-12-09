@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# VisionMind - Script de inicio rápido para macOS
+# Argos - Script de inicio rápido para macOS
 # Doble click para iniciar backend, frontend y mobile en terminales separadas
 # =============================================================================
 set -euo pipefail
@@ -138,7 +138,7 @@ fi
 # =============================================================================
 # Lanzar terminales
 # =============================================================================
-info "Iniciando VisionMind..."
+info "Iniciando Argos..."
 
 osascript <<EOF_APPLESCRIPT
 tell application "Terminal"
@@ -165,7 +165,7 @@ fi
 # =============================================================================
 echo ""
 echo "=============================================="
-echo "  🎯 VisionMind iniciado exitosamente"
+echo "  🎯 Argos iniciado exitosamente"
 echo "=============================================="
 echo ""
 echo "  Backend:  http://localhost:$BACKEND_PORT"

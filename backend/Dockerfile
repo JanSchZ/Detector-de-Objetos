@@ -1,4 +1,4 @@
-# Dockerfile for VisionMind Backend
+# Dockerfile for Argos Backend
 # Multi-stage build for optimal image size
 
 FROM python:3.11-slim as builder

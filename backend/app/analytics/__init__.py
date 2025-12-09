@@ -1,5 +1,5 @@
 """
-Analytics module for VisionMind.
+Analytics module for Argos.
 Provides detection statistics, trends, and aggregated data.
 """
 from .aggregator import AnalyticsAggregator

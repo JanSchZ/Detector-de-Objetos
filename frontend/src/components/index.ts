@@ -17,4 +17,6 @@ export { AIAssistant } from './AIAssistant';
 export { default as AnalyticsDashboard } from './AnalyticsDashboard';
 export { default as RecordingsViewer } from './RecordingsViewer';
 export { default as ThemeToggle } from './ThemeToggle';
+export { default as PresetSelector } from './PresetSelector';
+export { default as PipelinePanel } from './PipelinePanel';
 export type { Zone } from './ZoneEditor';

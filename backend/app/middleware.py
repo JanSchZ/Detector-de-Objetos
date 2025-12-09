@@ -1,5 +1,5 @@
 """
-Middleware for VisionMind API.
+Middleware for Argos API.
 Implements rate limiting, request validation, and security headers.
 """
 import time

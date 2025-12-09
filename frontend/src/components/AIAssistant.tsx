@@ -22,7 +22,7 @@ export function AIAssistant({
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
-        { role: 'assistant', content: '¡Hola! Soy tu asistente de VisionMind. Puedo ayudarte a entender y configurar el sistema. ¿Qué te gustaría saber?' }
+        { role: 'assistant', content: '¡Hola! Soy tu asistente de Argos. Puedo ayudarte a entender y configurar el sistema. ¿Qué te gustaría saber?' }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -109,7 +109,7 @@ export function AIAssistant({
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="font-medium text-sm">Asistente VisionMind</h3>
+                                <h3 className="font-medium text-sm">Asistente Argos</h3>
                                 <p className="text-xs text-muted-foreground">Powered by Gemini</p>
                             </div>
                         </div>

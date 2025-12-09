@@ -104,7 +104,7 @@ export default function CameraScreen() {
                     </View>
                     <Text style={styles.permissionTitle}>Permiso de Cámara</Text>
                     <Text style={styles.permissionText}>
-                        VisionMind necesita acceso a tu cámara para transmitir video al servidor de detección.
+                        Argos necesita acceso a tu cámara para transmitir video al servidor de detección.
                     </Text>
                     <TouchableOpacity
                         style={styles.permissionButton}

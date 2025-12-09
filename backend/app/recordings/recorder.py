@@ -1,5 +1,5 @@
 """
-Video clip recording for VisionMind.
+Video clip recording for Argos.
 Captures video clips before and after alert events.
 """
 import asyncio

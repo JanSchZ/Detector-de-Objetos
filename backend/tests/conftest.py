@@ -1,5 +1,5 @@
 """
-Pytest configuration and fixtures for VisionMind tests.
+Pytest configuration and fixtures for Argos tests.
 """
 import sys
 from pathlib import Path

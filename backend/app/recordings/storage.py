@@ -1,5 +1,5 @@
 """
-Recording storage management for VisionMind.
+Recording storage management for Argos.
 Handles file storage, cleanup, and database persistence.
 """
 import json

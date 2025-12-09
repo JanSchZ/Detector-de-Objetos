@@ -52,7 +52,7 @@ class AlertConfig:
     """Configuración del sistema de alertas"""
     enabled: bool = True
     ntfy_server: str = "https://ntfy.sh"
-    ntfy_topic: str = "visionmind-alerts"
+    ntfy_topic: str = "argos-alerts"
     min_confidence: float = 0.7
     min_frames_in_zone: int = 3  # Frames mínimos antes de alertar
     cooldown_seconds: float = 30.0  # Cooldown entre alertas iguales
@@ -219,7 +219,7 @@ class AlertNotifier:
             headers = {
                 "Title": alert.title,
                 "Priority": priority_map.get(alert.priority, "3"),
-                "Tags": f"{alert.zone_type.value},visionmind",
+                "Tags": f"{alert.zone_type.value},argos",
             }
             
             url = f"{self.config.ntfy_server}/{self.config.ntfy_topic}"

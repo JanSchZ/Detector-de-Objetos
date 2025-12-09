@@ -1,5 +1,5 @@
 """
-Authentication module for VisionMind.
+Authentication module for Argos.
 Implements JWT-based authentication with API key support for WebSocket.
 """
 import os
@@ -31,7 +31,7 @@ USERS_DB: dict[str, dict] = {}
 
 # Initialize default admin user if not exists
 DEFAULT_ADMIN_USER = os.getenv("VM_ADMIN_USER", "admin")
-DEFAULT_ADMIN_PASS = os.getenv("VM_ADMIN_PASS", "visionmind")
+DEFAULT_ADMIN_PASS = os.getenv("VM_ADMIN_PASS", "argos")
 
 
 class TokenData(BaseModel):

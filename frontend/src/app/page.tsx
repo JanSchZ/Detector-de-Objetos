@@ -150,7 +150,7 @@ export default function Home() {
     if (!frame) return;
     const a = document.createElement('a');
     a.href = frame;
-    a.download = `visionmind-capture-${Date.now()}.jpg`;
+    a.download = `argos-capture-${Date.now()}.jpg`;
     a.click();
   }, [frame]);
 

@@ -1,5 +1,5 @@
 """
-Analytics data aggregation for VisionMind.
+Analytics data aggregation for Argos.
 Collects and summarizes detection statistics.
 """
 import json

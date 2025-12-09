@@ -1,5 +1,5 @@
 /**
- * API configuration and client for VisionMind backend
+ * API configuration and client for Argos backend
  */
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';

@@ -40,7 +40,7 @@ export default function App() {
                 <Text style={styles.logoEmoji}>👁️</Text>
               </LinearGradient>
               <View style={styles.logoText}>
-                <Text style={styles.logoTitle}>VisionMind</Text>
+                <Text style={styles.logoTitle}>Argos</Text>
                 <Text style={styles.logoSubtitle}>Vigilancia Inteligente</Text>
               </View>
             </View>

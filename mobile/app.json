@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "VisionMind",
-    "slug": "visionmind-mobile",
+    "name": "Argos",
+    "slug": "argos-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,9 +14,9 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.visionmind.mobile",
+      "bundleIdentifier": "com.argos.mobile",
       "infoPlist": {
-        "NSCameraUsageDescription": "VisionMind necesita acceso a la cámara para transmitir video al servidor de detección.",
+        "NSCameraUsageDescription": "Argos necesita acceso a la cámara para transmitir video al servidor de detección.",
         "UIBackgroundModes": [
           "remote-notification"
         ]
@@ -27,7 +27,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0a0a0a"
       },
-      "package": "com.visionmind.mobile",
+      "package": "com.argos.mobile",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
@@ -37,7 +37,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "VisionMind necesita acceso a la cámara para transmitir video."
+          "cameraPermission": "Argos necesita acceso a la cámara para transmitir video."
         }
       ],
       [

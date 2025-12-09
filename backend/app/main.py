@@ -1,5 +1,5 @@
 """
-Sistema de Detección de Objetos con YOLOv11
+Argos - Multi-Backend Object Detection System
 FastAPI Application Entry Point
 """
 import os
@@ -23,7 +23,7 @@ CORS_ORIGINS = os.getenv("VM_CORS_ORIGINS", "*").split(",")
 async def lifespan(app: FastAPI):
     """Lifecycle hooks para la aplicación"""
     auth_status = "habilitada" if AUTH_ENABLED else "deshabilitada"
-    print(f"🚀 Iniciando Detector de Objetos... (autenticación {auth_status})")
+    print(f"🚀 Iniciando Argos... (autenticación {auth_status})")
     
     # Initialize database
     await init_db()
@@ -32,13 +32,13 @@ async def lifespan(app: FastAPI):
     
     # Cleanup
     await close_db()
-    print("🛑 Deteniendo Detector de Objetos...")
+    print("🛑 Deteniendo Argos...")
 
 
 app = FastAPI(
-    title="Detector de Objetos",
-    description="Sistema de detección de objetos en tiempo real con YOLOv11",
-    version="0.2.0",
+    title="Argos",
+    description="Sistema de detección de objetos multi-backend con IA",
+    version="1.0.0",
     lifespan=lifespan,
 )
 
@@ -62,8 +62,11 @@ app.include_router(auth_router)
 # Import and include new feature routers
 from app.recordings import router as recordings_router
 from app.analytics import router as analytics_router
+from app.api.pipeline_routes import router as pipeline_router
+
 app.include_router(recordings_router)
 app.include_router(analytics_router)
+app.include_router(pipeline_router)
 
 
 # WebSocket endpoint
@@ -77,8 +80,9 @@ async def websocket_endpoint(websocket: WebSocket):
 async def root():
     """Root endpoint con info del API"""
     return {
-        "name": "Detector de Objetos",
-        "version": "0.1.0",
+        "name": "Argos",
+        "version": "1.0.0",
+        "description": "El gigante de los 100 ojos - Sistema de detección multi-backend",
         "docs": "/docs",
         "websocket": "/ws/detect",
         "endpoints": {
@@ -86,6 +90,13 @@ async def root():
             "classes": "/api/classes",
             "models": "/api/models",
             "health": "/api/health",
+            "pipeline": {
+                "status": "/api/pipeline/status",
+                "presets": "/api/pipeline/presets",
+                "backends": "/api/pipeline/backends",
+                "fusion": "/api/pipeline/fusion",
+                "capabilities": "/api/pipeline/capabilities",
+            },
         }
     }
 

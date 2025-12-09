@@ -108,7 +108,7 @@ async def get_mobile_frame_status() -> dict:
 @router.get("/health")
 async def health_check():
     """Endpoint de salud"""
-    return {"status": "ok", "service": "visionmind"}
+    return {"status": "ok", "service": "argos"}
 
 
 @router.get("/cameras")
@@ -497,7 +497,7 @@ async def test_alert() -> dict:
     test_alert = Alert(
         id="test-alert",
         title="🧪 Alerta de Prueba",
-        message="Esta es una alerta de prueba de VisionMind",
+        message="Esta es una alerta de prueba de Argos",
         priority=AlertPriority.NORMAL,
         zone_type=ZoneType.WARNING,
         tracker_id=0,

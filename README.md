@@ -1,4 +1,6 @@
-# VisionMind
+# Argos 👁️
+
+> *El gigante de los 100 ojos* - Sistema de detección de objetos multi-backend con IA
 
 Sistema de vigilancia con IA para detección de objetos, tracking persistente, zonas de seguridad y alertas push.
 

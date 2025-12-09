@@ -1,5 +1,5 @@
 """
-Database models for VisionMind.
+Database models for Argos.
 Defines all persistent entities: users, zones, alerts, recordings, and analytics.
 """
 import uuid

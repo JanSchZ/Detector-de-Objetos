@@ -39,7 +39,7 @@ export function AnalyticsPanel({ objects, counts, sessionStart, isConnected }: A
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `visionmind-export-${Date.now()}.json`;
+        a.download = `argos-export-${Date.now()}.json`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -52,7 +52,7 @@ export function AnalyticsPanel({ objects, counts, sessionStart, isConnected }: A
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `visionmind-counts-${Date.now()}.csv`;
+        a.download = `argos-counts-${Date.now()}.csv`;
         a.click();
         URL.revokeObjectURL(url);
     };

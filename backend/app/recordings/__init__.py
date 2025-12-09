@@ -1,5 +1,5 @@
 """
-Recordings module for VisionMind.
+Recordings module for Argos.
 Contains video clip recording, storage management, and API routes.
 """
 from .recorder import ClipRecorder, RecordingBuffer

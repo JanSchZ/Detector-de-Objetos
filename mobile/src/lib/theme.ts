@@ -1,5 +1,5 @@
 /**
- * VisionMind Mobile - Premium Theme
+ * Argos Mobile - Premium Theme
  */
 
 export const colors = {
