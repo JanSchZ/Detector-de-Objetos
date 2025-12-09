@@ -8,21 +8,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pytest
-import asyncio
 from typing import AsyncGenerator
 
 from httpx import AsyncClient, ASGITransport
 
-# Import app for testing
+# Import app and database for testing
 from app.main import app
+from app.database import init_db
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    """Create event loop for async tests."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
+# Initialize database at module load
+import asyncio
+asyncio.get_event_loop().run_until_complete(init_db())
 
 
 @pytest.fixture
