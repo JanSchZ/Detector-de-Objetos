@@ -1,0 +1,51 @@
+# VisionMind Docker Compose
+# Development and production configuration
+
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: visionmind-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - VM_VIDEO_SOURCE=${VM_VIDEO_SOURCE:-webcam}
+      - VM_WEBCAM_INDEX=${VM_WEBCAM_INDEX:-0}
+      - VM_IP_CAMERA_URL=${VM_IP_CAMERA_URL:-}
+      - VM_MODEL_SIZE=${VM_MODEL_SIZE:-nano}
+      - VM_AUTH_ENABLED=${VM_AUTH_ENABLED:-false}
+      - VM_SECRET_KEY=${VM_SECRET_KEY:-change_me_in_production}
+      - VM_ADMIN_USER=${VM_ADMIN_USER:-admin}
+      - VM_ADMIN_PASS=${VM_ADMIN_PASS:-visionmind}
+      - VM_CORS_ORIGINS=http://localhost:3000,http://frontend:3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    volumes:
+      - ./backend/data:/app/data
+      # For webcam access (uncomment on Linux)
+      # - /dev/video0:/dev/video0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: visionmind-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  backend-data:

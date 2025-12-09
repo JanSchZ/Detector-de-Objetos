@@ -14,5 +14,7 @@ export { MainMenu } from './MainMenu';
 export { SettingsPanel } from './SettingsPanel';
 export { AnalyticsPanel } from './AnalyticsPanel';
 export { AIAssistant } from './AIAssistant';
+export { default as AnalyticsDashboard } from './AnalyticsDashboard';
+export { default as RecordingsViewer } from './RecordingsViewer';
+export { default as ThemeToggle } from './ThemeToggle';
 export type { Zone } from './ZoneEditor';
-

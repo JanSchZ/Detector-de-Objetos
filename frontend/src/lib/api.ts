@@ -20,6 +20,19 @@ export const API_ENDPOINTS = {
     alertsTest: `${API_BASE_URL}/api/alerts/test`,
     assistantChat: `${API_BASE_URL}/api/assistant/chat`,
     websocket: `${WS_BASE_URL}/ws/detect`,
+    // Auth endpoints
+    authStatus: `${API_BASE_URL}/api/auth/status`,
+    authLogin: `${API_BASE_URL}/api/auth/login`,
+    authMe: `${API_BASE_URL}/api/auth/me`,
+    authLogout: `${API_BASE_URL}/api/auth/logout`,
+    // Recordings endpoints
+    recordings: `${API_BASE_URL}/api/recordings`,
+    recordingsStatus: `${API_BASE_URL}/api/recordings/status`,
+    // Analytics endpoints
+    analyticsSummary: `${API_BASE_URL}/api/analytics/summary`,
+    analyticsRealtime: `${API_BASE_URL}/api/analytics/realtime`,
+    analyticsDetections: `${API_BASE_URL}/api/analytics/detections`,
+    analyticsHeatmap: `${API_BASE_URL}/api/analytics/heatmap`,
 };
 
 
@@ -338,5 +351,168 @@ export async function sendAssistantMessage(
         const error = await response.json().catch(() => ({}));
         throw new Error(error.detail || 'Assistant error');
     }
+    return response.json();
+}
+
+// ===== Auth Types & Functions =====
+
+export interface AuthStatus {
+    enabled: boolean;
+    api_key_configured: boolean;
+    token_expire_minutes: number;
+}
+
+export interface TokenResponse {
+    access_token: string;
+    token_type: string;
+    expires_in: number;
+}
+
+let authToken: string | null = null;
+
+export function setAuthToken(token: string | null) {
+    authToken = token;
+    if (token) {
+        localStorage.setItem('vm_auth_token', token);
+    } else {
+        localStorage.removeItem('vm_auth_token');
+    }
+}
+
+export function getAuthToken(): string | null {
+    if (!authToken) {
+        authToken = localStorage.getItem('vm_auth_token');
+    }
+    return authToken;
+}
+
+export function getAuthHeaders(): HeadersInit {
+    const token = getAuthToken();
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
+export async function getAuthStatus(): Promise<AuthStatus> {
+    const response = await fetch(API_ENDPOINTS.authStatus);
+    if (!response.ok) throw new Error('Failed to get auth status');
+    return response.json();
+}
+
+export async function login(username: string, password: string): Promise<TokenResponse> {
+    const response = await fetch(API_ENDPOINTS.authLogin, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+    });
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || 'Login failed');
+    }
+    const data = await response.json();
+    setAuthToken(data.access_token);
+    return data;
+}
+
+export async function logout(): Promise<void> {
+    setAuthToken(null);
+}
+
+// ===== Recordings Types & Functions =====
+
+export interface Recording {
+    id: string;
+    alert_id: string | null;
+    filename: string;
+    path: string;
+    duration_seconds: number;
+    file_size_bytes: number;
+    resolution: string | null;
+    created_at: string;
+    exists: boolean;
+}
+
+export interface RecordingsResponse {
+    recordings: Recording[];
+    total_size_mb: number;
+    max_size_mb: number;
+    max_age_days: number;
+}
+
+export async function getRecordings(limit = 50, offset = 0): Promise<RecordingsResponse> {
+    const response = await fetch(
+        `${API_ENDPOINTS.recordings}?limit=${limit}&offset=${offset}`,
+        { headers: getAuthHeaders() }
+    );
+    if (!response.ok) throw new Error('Failed to fetch recordings');
+    return response.json();
+}
+
+export async function deleteRecording(recordingId: string): Promise<void> {
+    const response = await fetch(`${API_ENDPOINTS.recordings}/${recordingId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to delete recording');
+}
+
+export function getRecordingVideoUrl(recordingId: string): string {
+    return `${API_ENDPOINTS.recordings}/${recordingId}/video`;
+}
+
+// ===== Analytics Types & Functions =====
+
+export interface AnalyticsSummary {
+    period_days: number;
+    today: {
+        date: string;
+        total_detections: number;
+        class_counts: Record<string, number>;
+        zone_entries: Record<string, number>;
+        hourly_counts: number[];
+        peak_hour: number;
+        current_hour: number;
+    };
+    alerts: {
+        total: number;
+        by_zone: Record<string, number>;
+        by_class: Record<string, number>;
+    };
+    generated_at: string;
+}
+
+export interface DetectionTrends {
+    period: string;
+    days: number;
+    trend: { date: string; count: number }[];
+    total: number;
+}
+
+export interface HeatmapData {
+    heatmap: number[][];
+    days: string[];
+    hours: number[];
+    period_days: number;
+}
+
+export async function getAnalyticsSummary(days = 7): Promise<AnalyticsSummary> {
+    const response = await fetch(`${API_ENDPOINTS.analyticsSummary}?days=${days}`);
+    if (!response.ok) throw new Error('Failed to fetch analytics');
+    return response.json();
+}
+
+export async function getRealtimeAnalytics(): Promise<AnalyticsSummary['today']> {
+    const response = await fetch(API_ENDPOINTS.analyticsRealtime);
+    if (!response.ok) throw new Error('Failed to fetch realtime analytics');
+    return response.json();
+}
+
+export async function getDetectionTrends(period: 'day' | 'week' | 'month' = 'week'): Promise<DetectionTrends> {
+    const response = await fetch(`${API_ENDPOINTS.analyticsDetections}?period=${period}`);
+    if (!response.ok) throw new Error('Failed to fetch trends');
+    return response.json();
+}
+
+export async function getHeatmapData(): Promise<HeatmapData> {
+    const response = await fetch(API_ENDPOINTS.analyticsHeatmap);
+    if (!response.ok) throw new Error('Failed to fetch heatmap');
     return response.json();
 }
